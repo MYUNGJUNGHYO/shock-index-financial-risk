@@ -9,14 +9,17 @@ import pandas as pd
 import yfinance as yf
 
 listing = fdr.StockListing('KOSPI')
-if listing is None or listing.empty or not {'Symbol', 'Name'}.issubset(listing.columns):
-    raise RuntimeError('KOSPI listing is unavailable')
+if listing is None or listing.empty:
+    raise RuntimeError('KOSPI listing is empty')
+code_column = next((col for col in ('Code', 'Symbol') if col in listing.columns), None)
+if code_column is None or 'Name' not in listing.columns:
+    raise RuntimeError(f'Unexpected KOSPI listing columns: {list(listing.columns)}')
 
 names = {}
-for row in listing[['Symbol', 'Name']].itertuples(index=False):
-    code = str(row.Symbol).strip().zfill(6)
+for code_value, name_value in listing[[code_column, 'Name']].itertuples(index=False, name=None):
+    code = str(code_value).strip().zfill(6)
     if len(code) == 6 and code.isdigit():
-        names[code + '.KS'] = str(row.Name).strip()
+        names[code + '.KS'] = str(name_value).strip()
 
 stocks = {}
 failures = []
