@@ -3,15 +3,16 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
-import yfinance as yf
+import FinanceDataReader as fdr
 
-SERIES = {'kospi': ('KOSPI', '^KS11'), 'usdkrw': ('USD/KRW', 'KRW=X')}
-output = {'updated_at_utc': datetime.now(timezone.utc).isoformat(timespec='seconds'), 'provider': 'Yahoo Finance via yfinance', 'markets': {}}
+SERIES = {'kospi': ('KOSPI', 'KS11'), 'usdkrw': ('USD/KRW', 'FRED:DEXKOUS')}
+output = {'updated_at_utc': datetime.now(timezone.utc).isoformat(timespec='seconds'), 'provider': 'FinanceDataReader: KOSPI index and FRED USD/KRW', 'markets': {}}
+start = f'{datetime.now(timezone.utc).year - 5}-01-01'
 for key, (name, ticker) in SERIES.items():
-    frame = yf.download(ticker, period='5y', interval='1d', auto_adjust=True, progress=False, threads=False, timeout=30)
+    frame = fdr.DataReader(ticker, start)
     if frame.empty:
         raise RuntimeError(f'No data returned for {ticker}; keeping previous deployment')
-    close = frame['Close']
+    close = frame['Close'] if 'Close' in frame.columns else frame.iloc[:, 0]
     if isinstance(close, pd.DataFrame):
         close = close.iloc[:, 0]
     clean = pd.DataFrame({'date': pd.to_datetime(close.index).strftime('%Y-%m-%d'), 'close': pd.to_numeric(close.values, errors='coerce')})
