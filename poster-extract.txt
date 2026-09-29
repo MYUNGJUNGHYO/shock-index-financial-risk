@@ -1,0 +1,111 @@
+                                  Shock index-based analysis of asset-specific jump risk:
+                                     An empirical assessment of the SDI-SVJ model
+                                                                                  Junghyo Myeong1, Minseo Shin1, Geongjin Jung1, Minsoo Kim1
+                                                                                              1727 Taejong-ro, korea maritime and ocean university, Busan
+
+
+
+
+ ❖ Proposing the SDI-SVJ model in which jump intensity λₜ responds dynamically to observed market shocks via the Shock Index qₜ
+ ❖ Validating model performance through multi-scenario simulation with optimized detection parameters
+ ❖ Applying the SDI-SVJ model to real Korean market data (KOSPI · KOSDAQ) for empirical assessment of jump risk
+
+
+◆ Introduction                                                                                                                ◆ Results
+➢ Background & Motivation                                                                                                     ➢ Simulation Results (Synthetic Data)
+   o Real financial markets frequently exhibit sudden, large price dislocations that
+                                                                                                                               o Optimization
+        continuous diffusion processes cannot capture.                                                                         • window = 20 consistently outperforms
+   o Empirical stylized facts including volatility clustering, fat tails, volatility smile,                                        window = 7 across all scenarios
+        and volatility skew are systematically missed by standard models.                                                      • Optimal threshold converges in 3.7–4.0;
+
+   o Existing SVJ models assign a constant jump intensity 𝜆, treating jump                                                         selected: (window, threshold) = (20, 3.70)
+
+        frequency as fixed regardless of market conditions.                                                                   o Jump Detection Performance
+   o Large price shocks empirically elevate subsequent jump probability, an                                                   • F1 = 0.783 (|jump| ≥ 0.03), F1 = 0.759 (|jump| ≥ 0.05)
+        endogenous feedback loop no current model encodes.                                                                    • Precision = 0.873, Recall = 0.733 (|jump| ≥ 0.03)
+
+   o While the primary focus is on model construction and simulation, KOSPI and                                               • Precision = 0.736, Recall = 0.832 (|jump| ≥ 0.05)
+                                                                                                                              • Representative scenario : Precision = 0.643, Recall = 1.000, F1 = 0.783
+        KOSDAQ data serve as an initial empirical touchpoint to assess real-market
+                                                                                                                              • Accuracy: 0.994 (|jump| ≥ 0.03), 0.995 (|jump| ≥ 0.05)
+        plausibility.
+                                                                                                                              • Optimal threshold by criterion: 3.50 (all) / 3.65 (≥0.03) / 4.05 (≥0.05) — all with window = 20
+➢ Limitation & existing models
+   o Black-Scholes: No jumps, no volatility clustering; short-term skew unexplained.
+   o Merton: Jump intensity constant; frequency independent of market state.
+   o Heston / Stochastic Volatility: Captures volatility clustering but leaves 𝜆 static;
+        extreme tail risk underestimated.
+   o Bates / SVJD: Adds jumps to SV framework, yet jump arrival rate remains
+        exogenous and fixed.
+➢ Purpose
+   o Propose SDI-SVJ: jump intensity 𝜆ₜ driven endogenously by the Shock Index
+        𝑞ₜ from observable price dynamics.
+   o Validate via multi-scenario Monte Carlo simulation across diverse volatility and
+                                                                                                                              ◆ Discussion
+        jump regimes.                                                                                                          ➢ Simulation findings
+   o Evaluate with Precision, Recall, and F1-score using optimized parameters.                                                 • Endogenous intensity outperforms constant-intensity baseline in ROC and PR metrics
+                                                                                                                               • Jump days inflate Expected Shortfall by 44%, underscoring material tail risk impact
+
+
+◆ Method                                                                                                                       ➢ Empirical Application
+➢ Diagram                                                                                                                      • To validate whether the SDI-SVJ model, verified through simulation, holds in real markets, we applied it to
+
+ • Log-price 𝑟ₜ = 𝜖ₜ + 𝐽ₜ                                                                                                          KOSPI and KRW/USD data across two distinct periods: 2023–2026 (recent market) and 2007–2009 (global
+
+ • Shock Index 𝑞ₜ = |𝑟ₜ| / 𝜎 ̂ₜ₋₁                                                                                                  financial crisis).
+ • Jump intensity 𝜆ₜ driven endogenously                                                                                       • Through this analysis, we observed that during prolonged high-volatility regimes, individual price shocks are
+ • Jump detected if 𝑞ₜ ≥ threshold                                                                                                 offset by an elevated σ̂ₜ₋₁, preventing q_t from exceeding the threshold. This confirmed through real data that
+                                                                                                                                   the SDI framework identifies jumps based on relative shock magnitude against the prevailing volatility regime —
+➢ Model structure
+                                                                                                                                   not in absolute terms — reaffirming the model's core mechanism.
+ • Log-price = continuous diffusion + shock-driven discrete jumps
+                                                                                                                               • These findings demonstrate that our model captures the fact that the significance of a jump is inherently
+ • Variance follows Heston-type CIR mean-reverting process
+                                                                                                                                   regime-dependent, going beyond simple noise filtering. This also highlights regime-aware threshold
+ • Jump intensity 𝜆ₜ is time-varying, driven endogenously by market shocks
+                                                                                                                                   recalibration as a key direction for future real-data applicability.
+➢ Mathematical Model
+                                                                                                                               ➢ Comparison with other studies
+  ❑ Log-price dynamics                                                  ❑ Variance dynamics
+                                                                                                                               • Unlike Black-Scholes, Merton, Heston, and Bates, SDI-SVJ introduces an endogenous, shock-driven jump
+    𝑑𝑋ₜ = 𝜇 𝑑𝑡 + √𝑣ₜ 𝑑𝑊ₜ + 𝐽ₜ 𝑑𝑁ₜ                                             𝑑𝑣ₜ = 𝜅(𝜃 − 𝑣ₜ) 𝑑𝑡 + 𝜎ᵥ√𝑣ₜ 𝑑𝑊ₜ⁽ᵛ⁾
+                                                                                                                                   intensity mechanism
+           drift term       Stochastic   Jump                                            Mean                 Variance
+                             Diffusion Component                                     Reversion to θ          Dissfusion
+                            (Brownian (poisson-                                                             (Heston-type)      ➢ Study limitations
+                             Motion)    Driven)
+                                                                                                                               • σ̂ₜ₋₁ sensitive to window length; parameters may need recalibration across regimes
+
+                                                                                        ❑ Detection rule
+                                                                                                                               • Jump size assumed Gaussian; heavier-tailed alternatives unexplored
+  ❑ Shock index                             ❑ Jump intensity
+                                                                                                                               • Simulation-tuned parameters may require empirical recalibration to fully adapt to real market regimes
+     𝑞ₜ = |𝑟ₜ| / 𝜎 ̂ₜ₋₁                      𝜆ₜ = 𝜆₀ exp(𝛾𝑞 · 𝑞ₜ)                       𝐽𝑢𝑚𝑝 𝑖𝑓 𝑞ₜ ≥ 𝑡ℎ𝑟𝑒𝑠ℎ𝑜𝑙𝑑
+
+         Absolute Rolling                    Baseline Sensityvity  Shock                                       Selected        ➢ Further works
+        Log-return Volatility                 Jump Of intensity    Index                                       Common
+                                             intensiy  To shock   At time t                                                    •    Extension to multivariate settings and high-frequency estimation
+         At time t Estimate                                                                                Parameter(=3.70)
+                  (window = 20)                                                                                                •    Calibration to options market data for implied parameter extraction
+
+➢ Parameters                                                                                                                   •    Empirical recalibration of threshold parameters to Korean equity and FX market regimes for enhanced real-
+                                                                                                                                    data applicability
+  ❑ Simulation parameters                              ❑ Detection parametes
+
+  • 𝜎 {0.008, 0.010, 0.015}                            • window {7, 20} → selected:                                           Conclusion
+  • 𝑝𝑗𝑢𝑚𝑝 {0.01, 0.02, 0.03}                           • threshold [1.0, 6.0] step 0.05 → selected: 3.70
+                                                                                                                               This study proposes SDI-SVJ as a theoretically grounded framework that endogenizes
+                                                                                                                              jump intensity through observable market shocks — an aspect overlooked by existing
+  • 𝜇𝐽 {0.04, 0.06, 0.08}                              ❑ Evaluation metrics
+                                                                                                                              constant-intensity models. Simulation results confirm the model's ability to detect
+                                                      • Precision / Recall / F1                                               jump risk with high precision, and the 44% inflation in Expected Shortfall on jump
+  • 𝜎𝐽 {0.02, 0.04}
+                                                      • Accuracy                                                              days underscores its practical relevance for tail risk management. Future work will
+                                                      • Jump criterion : all / ≥ 0.03 / ≥ 0.05
+                                                                                                                              extend the model to multivariate settings and calibrate parameters to real market
+                                                                                                                              regimes.
+
+This research was supported by the Regional Innovation System & Education(RISE) program through the Instiute for Regional Innovation System & Education in Busan Metropolitan City, funded
+by the Ministry of Education(MOE) and the Busan Metropolitan City, Republic of Korea.(2026-RISE-02-002-001)
+
